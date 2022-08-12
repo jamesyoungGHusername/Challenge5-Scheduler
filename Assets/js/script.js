@@ -1,6 +1,6 @@
 
 var currentDateDisplay=document.querySelector("#currentDay");
-currentDateDisplay.textContent=moment().format("MMM Do YYYY");
+currentDateDisplay.textContent=moment().format("MMM Do YYYY , h a");
 var container = document.querySelector(".container");
 
 //Holds all info and methods concerned with building and operating a single time block on the page.
@@ -34,12 +34,14 @@ class TimeBlock{
 
     }
 }
+
 //enumerator of possible block states governing their coloring.
-const blockStates = {
+const BlockStates = {
     Past:"past",
     Present:"present",
     Future:"future"
 }
+
 //Contains info and methods for displaying and operating a full day's schedule worth of time blocks.
 class DaySchedule{
     constructor(date,timeBlocks){
@@ -50,8 +52,18 @@ class DaySchedule{
         for (var i=9;i<18;i++){
             var test = new TimeBlock(i+":00","","past");
             this.timeBlocks.push(test);
-            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(""+i+":00","","past")
+            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(""+i+":00","",this.returnElementState(i,this.date.format("HH")));
             $(".container").append(nextBlock);
+        }
+    }
+    //returns a block state corresponding to whether a given element's label falls in the past, present, or future.
+    returnElementState(elementTime,currentHour){
+        if(elementTime<currentHour){
+            return BlockStates.Past;
+        }else if(elementTime==currentHour){
+            return BlockStates.Present;
+        }else if(elementTime>currentHour){
+            return BlockStates.Future;
         }
     }
 }
