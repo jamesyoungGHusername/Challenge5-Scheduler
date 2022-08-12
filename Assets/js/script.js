@@ -3,7 +3,7 @@ var currentDateDisplay=document.querySelector("#currentDay");
 currentDateDisplay.textContent=moment().format("MMM Do YYYY");
 var container = document.querySelector(".container");
 
-
+//Holds all info and methods concerned with building and operating a single time block on the page.
 class TimeBlock{
     constructor(hour,currentText,stateString){
         this.hour=hour;
@@ -34,6 +34,13 @@ class TimeBlock{
 
     }
 }
+//enumerator of possible block states governing their coloring.
+const blockStates = {
+    Past:"past",
+    Present:"present",
+    Future:"future"
+}
+//Contains info and methods for displaying and operating a full day's schedule worth of time blocks.
 class DaySchedule{
     constructor(date,timeBlocks){
         this.date=date;
