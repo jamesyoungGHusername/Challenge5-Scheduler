@@ -3,6 +3,7 @@ var currentDateDisplay=document.querySelector("#currentDay");
 currentDateDisplay.textContent=moment().format("MMM Do YYYY");
 var container = document.querySelector(".container");
 
+
 class TimeBlock{
     constructor(hour,currentText,stateString){
         this.hour=hour;
@@ -10,29 +11,27 @@ class TimeBlock{
         this.stateString=stateString;
     }
     returnBlockHTMLFor(hour, currentText, stateString){
-        console.log("in returnBlock");
         var $timeBlock = $("<div>",{"class":"time-block"});
         var $row = $("<div>",{"class":"row justify-content-center"});
-        console.log(hour);
-        var $hourLabel=returnTimeBlockLabel(hour);
-        var $description=returnDescriptionElement(currentText,stateString);
-        var $button=returnSaveButtonElement();
+        var $hourLabel=this.returnTimeBlockLabel(hour);
+        var $description=this.returnDescriptionElement(currentText,stateString);
+        var $button=this.returnSaveButtonElement(hour);
+        //same as add event listener, but this is a jQuery object;
+        $button.bind("click",() => {saveInput($description,currentText)});
         $row.append($hourLabel,$description,$button);
         $timeBlock.append($row);
         return $timeBlock;
     }
     returnTimeBlockLabel(label){
-        console.log("in return block label");
-        var sameButNoJQuery = document.createElement("div");
-        sameButNoJQuery.classList.add("hour", "col-2", "col-lg-1");
-        sameButNoJQuery.textContent="label";
-        return sameButNoJQuery;
+        return $("<div>",{"class":"hour col-2 col-lg-1",id:label}).text(label);
     }
     returnDescriptionElement(currentText,stateString){
         return $("<textArea>",{"class":"description "+stateString+" col-8 col-lg-10","cols":"30","rows":"10",id:"","name":""}).text(currentText);
     }
-    returnSaveButtonElement(){
-        return $("<button>",{"class":"saveBtn col-2 col-lg-1"}).text('Save');
+    returnSaveButtonElement(ID){
+
+        return $("<button>",{"class":"saveBtn col-2 col-lg-1",id:ID}).text('Save');
+
     }
 }
 class DaySchedule{
@@ -43,26 +42,22 @@ class DaySchedule{
     generateElementsForDay(){
         for (var i=9;i<18;i++){
             var test = new TimeBlock(i+":00","","past");
-            console.log(test);
-            console.log(this.timeBlocks);
             this.timeBlocks.push(test);
-            console.log(this.timeBlocks);
-            console.log(this.timeBlocks[i-9]);
             var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(""+i+":00","","past")
             $(".container").append(nextBlock);
         }
     }
 }
 
-for (var i=9;i<18;i++){
-    var t=new TimeBlock(""+i+":00","","past");
-    container.append(t.returnBlockHTMLFor("9","","past"));
+
+//Event handler takes a reference to a text area and whatever text it started with and if it has new content saves it to local storage.
+function saveInput(refToTextArea,startingText){
+    console.log("pretend this is saving "+refToTextArea.val());
 }
 
+$( document ).ready(function() {
+    var day=new DaySchedule(moment(),[]);
+    $(".container").append(day.generateElementsForDay());
+});
 
-// $( document ).ready(function() {
-//     for (var i=9;i<18;i++){
-//         var t=new TimeBlock(""+i+":00","","past");
-//         $(".container").append(t.returnBlockHTMLFor("9","","past"));
-//     }
-// });
+
