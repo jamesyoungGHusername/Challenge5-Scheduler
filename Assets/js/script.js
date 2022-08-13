@@ -1,7 +1,7 @@
 
 var currentDateDisplay=document.querySelector("#currentDay");
 var dayDisplayed=moment();
-currentDateDisplay.textContent=dayDisplayed.format("MMM Do YYYY , h a");
+currentDateDisplay.textContent=dayDisplayed.format("ddd, MMM Do YYYY");
 var container = document.querySelector(".container");
 var goYesterday = document.querySelector(".yesterday");
 var goTomorrow = document.querySelector(".tomorrow");
@@ -68,11 +68,7 @@ class DaySchedule{
         var elementDay=elementDate.format("mm dd YYYY");
         var currentHour=currentMoment.format("HH");
         var elementHour=elementTime;
-        // console.log("element "+elementDate.format("mm dd YYYY"));
-        // console.log("current "+currentDate);
         if(elementDate.format("mm dd YYYY")==currentDate){
-            console.log("element "+elementHour);
-            console.log("current "+currentHour);
             if (elementHour<currentHour){
                 return BlockStates.Past;
             }else if(elementHour==currentHour){
@@ -90,15 +86,14 @@ class DaySchedule{
 
 function advanceDay(){
     dayDisplayed=moment(dayDisplayed).add(1,"days");
-    currentDateDisplay.textContent=dayDisplayed.format("MMM Do YYYY , h a");
-    console.log("attempting to build next page");
+    currentDateDisplay.textContent=dayDisplayed.format("ddd MMM Do YYYY");
     removeAllChildNodes(container);
     buildPage();
 }
 
 function backADay(){
     dayDisplayed=moment(dayDisplayed).add(-1,"days");
-    currentDateDisplay.textContent=dayDisplayed.format("MMM Do YYYY , h a");
+    currentDateDisplay.textContent=dayDisplayed.format("ddd MMM Do YYYY");
     removeAllChildNodes(container);
     buildPage();
 }
