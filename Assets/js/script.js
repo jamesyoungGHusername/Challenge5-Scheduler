@@ -1,11 +1,15 @@
 
 var currentDateDisplay=document.querySelector("#currentDay");
-currentDateDisplay.textContent=moment().format("MMM Do YYYY , h a");
+var dayDisplayed=moment();
+currentDateDisplay.textContent=dayDisplayed.format("MMM Do YYYY , h a");
 var container = document.querySelector(".container");
+var goYesterday = document.querySelector(".yesterday");
+var goTomorrow = document.querySelector(".tomorrow");
 
 //Holds all info and methods concerned with building and operating a single time block on the page.
 class TimeBlock{
-    constructor(hour,currentText,stateString){
+    constructor(date,hour,currentText,stateString){
+        this.date=date;
         this.hour=hour;
         this.currentText=currentText;
         this.stateString=stateString;
@@ -46,26 +50,57 @@ const BlockStates = {
 class DaySchedule{
     constructor(date,timeBlocks){
         this.date=date;
+        console.log(date);
         this.timeBlocks=timeBlocks;
     }
     generateElementsForDay(){
-        for (var i=9;i<18;i++){
-            var test = new TimeBlock(i+":00","","past");
+        for (var i=9;i<24;i++){
+            var test = new TimeBlock(this.date,i+":00","","past");
             this.timeBlocks.push(test);
-            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(""+i+":00","",this.returnElementState(i,this.date.format("HH")));
+            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(""+i+":00","",this.returnElementState(this.date,i));
             $(".container").append(nextBlock);
         }
     }
     //returns a block state corresponding to whether a given element's label falls in the past, present, or future.
-    returnElementState(elementTime,currentHour){
-        if(elementTime<currentHour){
-            return BlockStates.Past;
-        }else if(elementTime==currentHour){
-            return BlockStates.Present;
-        }else if(elementTime>currentHour){
+    returnElementState(elementDate,elementTime){
+        var currentMoment=moment();
+        var currentDate=currentMoment.format("mm dd YYYY");
+        var elementDay=elementDate.format("mm dd YYYY");
+        var currentHour=currentMoment.format("HH");
+        var elementHour=elementTime;
+        // console.log("element "+elementDate.format("mm dd YYYY"));
+        // console.log("current "+currentDate);
+        if(elementDate.format("mm dd YYYY")==currentDate){
+            console.log("element "+elementHour);
+            console.log("current "+currentHour);
+            if (elementHour<currentHour){
+                return BlockStates.Past;
+            }else if(elementHour==currentHour){
+                return BlockStates.Present;
+            }else if(elementHour>currentHour){
+                return BlockStates.Future;
+            }
+        }else if(currentMoment.isBefore(elementDate)){
             return BlockStates.Future;
+        }else if(currentMoment.isAfter(elementDate)){
+            return BlockStates.Past;
         }
     }
+}
+
+function advanceDay(){
+    dayDisplayed=moment(dayDisplayed).add(1,"days");
+    currentDateDisplay.textContent=dayDisplayed.format("MMM Do YYYY , h a");
+    console.log("attempting to build next page");
+    removeAllChildNodes(container);
+    buildPage();
+}
+
+function backADay(){
+    dayDisplayed=moment(dayDisplayed).add(-1,"days");
+    currentDateDisplay.textContent=dayDisplayed.format("MMM Do YYYY , h a");
+    removeAllChildNodes(container);
+    buildPage();
 }
 
 
@@ -74,9 +109,20 @@ function saveInput(refToTextArea,startingText){
     console.log("pretend this is saving "+refToTextArea.val());
 }
 
+function removeAllChildNodes(from) {
+    while (from.firstChild) {
+        from.removeChild(from.firstChild);
+    }
+}
+
 $( document ).ready(function() {
-    var day=new DaySchedule(moment(),[]);
-    $(".container").append(day.generateElementsForDay());
+    buildPage();
 });
 
+function buildPage(){
+    var day=new DaySchedule(dayDisplayed,[]);
+    $(".container").append(day.generateElementsForDay());
+}
 
+goTomorrow.addEventListener("click",advanceDay);
+goYesterday.addEventListener("click",backADay);
