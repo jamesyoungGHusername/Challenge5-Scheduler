@@ -51,11 +51,12 @@ class DaySchedule{
         console.log(date);
         this.timeBlocks=timeBlocks;
     }
-    generateElementsForDay(){
+    generateElementsForDay(em){
         for (var i=9;i<24;i++){
-            var test = new TimeBlock(this.date,i+":00","","past");
+            var msg=em.returnEventFor(this.date,i);
+            var test = new TimeBlock(this.date,i+":00",msg,"past");
             this.timeBlocks.push(test);
-            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(i,"",this.returnElementState(this.date,i));
+            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(i,msg,this.returnElementState(this.date,i));
             $(".container").append(nextBlock);
         }
     }
@@ -107,8 +108,8 @@ function saveInput(date,hour,refToTextArea,startingText){
             hour="09";
         }
         var eventToSave=new Event(moment(date.format("YYYY-MM-DDT"+hour)),refToTextArea.val());
-        console.log(global.eventToSave.startMoment);
-        global.eventManager.addEvent(eventToSave);
+        eventManager.addEvent(eventToSave);
+        eventManager.saveEventListToLocal();
     }
     
 }
@@ -121,19 +122,17 @@ function removeAllChildNodes(from) {
 
 $( document ).ready(function() {
     eventManager = new EventManager();
-    console.log(eventManager.eventList);
     eventManager.loadEventsFromLocal();
-
-    buildPage();
+    buildPage(eventManager);
 });
 
-function buildPage(){
+function buildPage(em){
     var day=new DaySchedule(dayDisplayed,[]);
-    $(".container").append(day.generateElementsForDay());
+    $(".container").append(day.generateElementsForDay(em));
 }
 
-goTomorrow.addEventListener("click",advanceDay);
-goYesterday.addEventListener("click",backADay);
+// goTomorrow.addEventListener("click",advanceDay);
+// goYesterday.addEventListener("click",backADay);
 
 //Inspired by my one true love, the Swift EventKit library, and the EKevent class. Event class contains information regarding a particular event.
 class Event{
@@ -149,7 +148,6 @@ class EventManager{
     constructor(){
         console.log("in constructor for eventmanager")
         this.eventList=new Array();
-        console.log(this.eventList);
     }
     saveEventListToLocal(){
         localStorage.setItem("eventList",JSON.stringify(this.eventList));
@@ -161,9 +159,25 @@ class EventManager{
         localStorage.setItem("eventList",null);
     }
     addEvent(event){
-        console.log(event);
-        console.log(this.eventList);
-        this.eventList.push(event);
+        if(this.eventList==null){
+            this.eventList=[event];
+        }else{
+            this.eventList.push(event);
+        }
+    }
+
+    //RETURNS THE TEXT OF THE EVENT IF ONE IS PRESENT
+    returnEventFor(date,hour){
+        console.log(date.format("YYYY-MM-DDT")+hour);
+        for (var i=0;i<this.eventList.length;i++){
+            if((date.format("YYYY-MM-DDT")+hour)==moment(this.eventList[i].startMoment).format("YYYY-MM-DDTHH")){
+                console.log("event found containing text: ")
+                console.log(this.eventList[i].eventIdentifier);
+                return this.eventList[i].eventIdentifier;
+            }
+        }
+        
+        
     }
 }
 
