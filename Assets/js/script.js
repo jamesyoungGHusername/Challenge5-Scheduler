@@ -52,7 +52,7 @@ class DaySchedule{
         this.timeBlocks=timeBlocks;
     }
     generateElementsForDay(em){
-        for (var i=9;i<24;i++){
+        for (var i=9;i<17;i++){
             var msg=em.returnEventFor(this.date,i);
             var test = new TimeBlock(this.date,i+":00",msg,"past");
             this.timeBlocks.push(test);
@@ -166,7 +166,7 @@ class EventManager{
         }
     }
 
-    //RETURNS THE TEXT OF THE EVENT IF ONE IS PRESENT
+    //RETURNS THE TEXT OF THE EVENT FOR GIVEN DATE AND HOUR IF ONE IS PRESENT
     returnEventFor(date,hour){
         console.log(date.format("YYYY-MM-DDT")+hour);
         for (var i=0;i<this.eventList.length;i++){
