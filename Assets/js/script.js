@@ -5,7 +5,7 @@ currentDateDisplay.textContent=dayDisplayed.format("ddd, MMM Do YYYY");
 var container = document.querySelector(".container");
 var goYesterday = document.querySelector(".yesterday");
 var goTomorrow = document.querySelector(".tomorrow");
-
+var eventManager;
 //Holds all info and methods concerned with building and operating a single time block on the page.
 class TimeBlock{
     constructor(date,hour,currentText,stateString){
@@ -21,7 +21,7 @@ class TimeBlock{
         var $description=this.returnDescriptionElement(currentText,stateString);
         var $button=this.returnSaveButtonElement(hour);
         //same as add event listener, but this is a jQuery object;
-        $button.bind("click",() => {saveInput($description,currentText)});
+        $button.bind("click",() => {saveInput(this.date,hour,$description,currentText)});
         $row.append($hourLabel,$description,$button);
         $timeBlock.append($row);
         return $timeBlock;
@@ -33,9 +33,7 @@ class TimeBlock{
         return $("<textArea>",{"class":"description "+stateString+" col-8 col-lg-10","cols":"30","rows":"10",id:"","name":""}).text(currentText);
     }
     returnSaveButtonElement(ID){
-
         return $("<button>",{"class":"saveBtn col-2 col-lg-1",id:ID}).text('Save');
-
     }
 }
 
@@ -57,7 +55,7 @@ class DaySchedule{
         for (var i=9;i<24;i++){
             var test = new TimeBlock(this.date,i+":00","","past");
             this.timeBlocks.push(test);
-            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(""+i+":00","",this.returnElementState(this.date,i));
+            var nextBlock=this.timeBlocks[i-9].returnBlockHTMLFor(i,"",this.returnElementState(this.date,i));
             $(".container").append(nextBlock);
         }
     }
@@ -100,8 +98,19 @@ function backADay(){
 
 
 //Event handler takes a reference to a text area and whatever text it started with and if it has new content saves it to local storage.
-function saveInput(refToTextArea,startingText){
-    console.log("pretend this is saving "+refToTextArea.val());
+function saveInput(date,hour,refToTextArea,startingText){
+    console.log(date.format("MM-DD-YYYYTHH"));
+    console.log(hour);
+    if(refToTextArea.val!=startingText){
+        if (hour==9){
+            //dang it.
+            hour="09";
+        }
+        var eventToSave=new Event(moment(date.format("YYYY-MM-DDT"+hour)),refToTextArea.val());
+        console.log(eventToSave.startMoment);
+        eventManager.addEvent(eventToSave);
+    }
+    
 }
 
 function removeAllChildNodes(from) {
@@ -111,6 +120,8 @@ function removeAllChildNodes(from) {
 }
 
 $( document ).ready(function() {
+    eventManager = new EventManager();
+    eventManager.loadEventsFromLocal();
     buildPage();
 });
 
@@ -121,3 +132,31 @@ function buildPage(){
 
 goTomorrow.addEventListener("click",advanceDay);
 goYesterday.addEventListener("click",backADay);
+
+//Inspired by my one true love, the Swift EventKit library, and the EKevent class. Event class contains information regarding a particular event.
+class Event{
+    constructor(startMoment,eventIdentifier){
+        this.startMoment=startMoment;
+        //eventIdentifier is also the description.
+        this.eventIdentifier=eventIdentifier;
+    }
+}
+
+//Created upon loading the page, contains and manages a list of events loaded from some source (in this case local storage.)
+class EventManager{
+    constructor(){
+        this.eventList=[];
+    }
+    saveEventListToLocal(){
+        localStorage.setItem("eventList",JSON.stringify(this.eventList));
+    }
+    loadEventsFromLocal(){
+        this.eventList=JSON.parse(localStorage.getItem("eventList"));
+    }
+    addEvent(event){
+        console.log(event);
+
+        this.eventList.push(event);
+    }
+}
+
