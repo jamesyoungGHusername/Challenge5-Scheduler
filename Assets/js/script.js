@@ -107,8 +107,8 @@ function saveInput(date,hour,refToTextArea,startingText){
             hour="09";
         }
         var eventToSave=new Event(moment(date.format("YYYY-MM-DDT"+hour)),refToTextArea.val());
-        console.log(eventToSave.startMoment);
-        eventManager.addEvent(eventToSave);
+        console.log(global.eventToSave.startMoment);
+        global.eventManager.addEvent(eventToSave);
     }
     
 }
@@ -121,7 +121,9 @@ function removeAllChildNodes(from) {
 
 $( document ).ready(function() {
     eventManager = new EventManager();
+    console.log(eventManager.eventList);
     eventManager.loadEventsFromLocal();
+
     buildPage();
 });
 
@@ -145,7 +147,9 @@ class Event{
 //Created upon loading the page, contains and manages a list of events loaded from some source (in this case local storage.)
 class EventManager{
     constructor(){
-        this.eventList=[];
+        console.log("in constructor for eventmanager")
+        this.eventList=new Array();
+        console.log(this.eventList);
     }
     saveEventListToLocal(){
         localStorage.setItem("eventList",JSON.stringify(this.eventList));
@@ -153,9 +157,12 @@ class EventManager{
     loadEventsFromLocal(){
         this.eventList=JSON.parse(localStorage.getItem("eventList"));
     }
+    clearSavedEventList(){
+        localStorage.setItem("eventList",null);
+    }
     addEvent(event){
         console.log(event);
-
+        console.log(this.eventList);
         this.eventList.push(event);
     }
 }
