@@ -123,6 +123,7 @@ function removeAllChildNodes(from) {
 $( document ).ready(function() {
     eventManager = new EventManager();
     eventManager.loadEventsFromLocal();
+    
     buildPage(eventManager);
 });
 
@@ -169,11 +170,13 @@ class EventManager{
     //RETURNS THE TEXT OF THE EVENT FOR GIVEN DATE AND HOUR IF ONE IS PRESENT
     returnEventFor(date,hour){
         console.log(date.format("YYYY-MM-DDT")+hour);
-        for (var i=0;i<this.eventList.length;i++){
-            if((date.format("YYYY-MM-DDT")+hour)==moment(this.eventList[i].startMoment).format("YYYY-MM-DDTHH")){
-                console.log("event found containing text: ")
-                console.log(this.eventList[i].eventIdentifier);
-                return this.eventList[i].eventIdentifier;
+        if(this.eventList!=null){
+            for (var i=0;i<this.eventList.length;i++){
+                if((date.format("YYYY-MM-DDT")+hour)==moment(this.eventList[i].startMoment).format("YYYY-MM-DDTHH")){
+                    console.log("event found containing text: ")
+                    console.log(this.eventList[i].eventIdentifier);
+                    return this.eventList[i].eventIdentifier;
+                }
             }
         }
         
